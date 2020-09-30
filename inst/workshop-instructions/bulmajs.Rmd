@@ -167,7 +167,7 @@ toggle_bulma_modal <- function(id, session = shiny::getDefaultReactiveDomain()) 
 
 On the JS side we need to create the corresponding handler. Replace `...` by the appropriate content in the `inst/custom-js/bulma-modal.js` file. Note that a shown modal has the `is-active` class. 
 
-3. Edit the `add_bulmajs_deps` function to add an extra dependency containing the local reference to `bulma-modal.js`. Below is the corresponding dependency to copy.
+3. Edit the `add_bulmajs_deps` function to add an extra dependency containing the local reference to `bulma-modal.js`. Below is the corresponding dependency to copy. Hint: `hasClass` may help you to check the current modal class!
 
 ```{r}
 bulma_modal_handler <- htmltools::htmlDependency(
