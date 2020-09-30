@@ -57,7 +57,7 @@ show_bulma_notification <- function(id = NULL, options = NULL, session = shiny::
       ... = dropNulls(...)
     )
   )
-  session$...(type = "bulma-notif", ...)
+  session$...(type = ..., ...)
 }
 ```
 
@@ -69,7 +69,7 @@ show_bulma_notification <- function(id = NULL, options = NULL, session = shiny::
 bulma_notif_handler <- htmltools::htmlDependency(
   name = "bulma",
   version = utils::packageVersion("Ex2"),
-  src = c(file = system.file("bulma-custom")),
+  src = c(file = system.file("bulma-custom", package = "Ex2")),
   script = "bulma-notif.js",
 )
 ```
@@ -113,5 +113,86 @@ The bulma modal HTML is available in bulma's core [here](https://bulma.io/docume
 
 1. After translating the most basic HTML template to R with `html_2_R`, we create `bulma_modal`.
 
+```html
+<div id="modal-example-2" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Modal title 1</p>
+            <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+                <p class="image is-4by3"><img src="https://bulma.io/images/placeholders/1280x960.png" alt=""></p>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-success">Save changes</button>
+            <button class="button is-danger is-outline">Cancel</button>
+        </footer>
+    </div>
+</div>
+```
 
+All parameters are pre-filled as show below:
 
+```{r bulma-modal}
+bulma_modal <- function(
+  id, 
+  title = NULL, 
+  ...,
+  footer = tagList(
+    tags$button(
+      class = "button is-success",
+      "Save changes"
+    ),
+    tags$button(
+      class = "button is-danger is-outline",
+      "Cancel"
+    )
+  )
+) {
+  # your R code
+}
+```
+
+#### Toggle the modal
+Similar to `shiny::showModal` and `shiny::removeModal`, we could create `show_modal` and `hide_modal`. Let's do it with only 1 function, `toggle_bulma_modal`!
+
+2. Create the `toggle_bulma_modal` function. It has only 2 parameters: `id` for the target (not mandatory), session is the current session extracted with `shiny::getDefaultReactiveDomain`. Fill in the blanks! 
+
+```{r toggle-bulma-modal}
+toggle_bulma_modal <- function(id, session = shiny::getDefaultReactiveDomain()) {
+  session$...(type = ..., ...)
+}
+```
+
+On the JS side we need to create the corresponding handler. Replace `...` by the appropriate content in the `inst/custom-js/bulma-modal.js` file. Note that a shown modal has the `is-active` class. 
+
+3. Edit the `add_bulmajs_deps` function to add an extra dependency containing the local reference to `bulma-modal.js`. Below is the corresponding dependency to copy.
+
+```{r}
+bulma_modal_handler <- htmltools::htmlDependency(
+  name = "bulma",
+  version = utils::packageVersion("Ex2"),
+  src = c(file = system.file("bulma-custom", package = "Ex2")),
+  script = "bulma-modal.js",
+)
+``` 
+
+4. Let's test our modal component.
+
+```{r bulma-modal-test}
+ui <- add_bulmajs_deps(
+  bulma_page(
+    bulma_modal("mymodal", "A modal", "This is my first modal!"),
+    bulma_button("test", "Click me!", color = "warning")
+  )
+)
+
+server <- function(input, output, session) {
+  observeEvent(input$test, {
+    toggle_bulma_modal(id = "mymodal")
+  })
+}
+
+shinyApp(ui, server)
+```
