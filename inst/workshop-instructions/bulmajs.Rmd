@@ -1,0 +1,117 @@
+---
+title: "bulmajs"
+author: "David Granjon"
+date: "9/27/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(htmltools)
+library(jsonlite)
+library(charpente)
+dropNulls <- function(x) {
+  x[!vapply(x, is.null, FUN.VALUE = logical(1))]
+}
+```
+
+## bulmajs
+As stated in the previous activity, bulma only contains CSS things! It means we need
+either to develop custom JS code to add interactivity or use any existing API. [bulma JS](https://bulmajs.tomerbe.co.uk/) is one of these!
+
+### Add the dependency
+1. Using `{charpente}` create a bulma js dependency. We'll point to "@vizuaalog/bulmajs" since some bulmajs already exist and are not what we want.
+
+```{r bulmajs-deps}
+create_dependency(..., options = charpente_options(local = FALSE))
+```
+
+Notice how many files are added to the dependency. You may not need all of them. For instance, in the following, we'll only work with notifications and modals.
+
+2. Test the newly created dependency.
+
+```{r bulmajs-deps-test}
+ui <- fluidPage(
+  
+)
+
+server <- function(input, output, session) {}
+shinyApp(ui, server)
+```
+
+### Notification 
+Notifications are always useful to send user feedback. Bulma notifications are entirely built from JS (not need for any HTML code).
+The API works as follows:
+  - `Bulma(target).notification(config)` create the notification based on a JSON option list
+  - We show the notification with `show`
+  
+In the following we'll first design the R interface and later the Shiny handler.
+
+1. It is time to create the `show_bulma_notification` function. It has 3 parameters: `id` for the target (not mandatory), options is the configuration expecting a list (see JS API), session is the current session extracted with `shiny::getDefaultReactiveDomain`. Fill in the blanks! Note: `dropNulls` removes all NULL elements from a list so that they are not sent to JS.
+
+```{r nulma-notif}
+show_bulma_notification <- function(id = NULL, options = NULL, session = shiny::getDefaultReactiveDomain()) {
+  message <- dropNulls(
+    list(
+      ...,
+      ... = dropNulls(...)
+    )
+  )
+  session$...(type = "bulma-notif", ...)
+}
+```
+
+2. On the JS side we need to create the corresponding handler. Replace `...` by the appropriate content in the `inst/custom-js/bulma-notif.js` file.
+
+3. Edit the `add_bulmajs_deps` function to add an extra dependency containing the local reference to `bulma-notif.js`. Below is the corresponding dependency to copy.
+
+```{r}
+bulma_notif_handler <- htmltools::htmlDependency(
+  name = "bulma",
+  version = utils::packageVersion("Ex2"),
+  src = c(file = system.file("bulma-custom")),
+  script = "bulma-notif.js",
+)
+```
+
+
+4. We test our new system in a simple shiny app.
+
+```{r bulma-notif-test}
+ui <- add_bulmajs_deps(
+  bulma_page(
+    bulma_button("test", "Click me!", color = "warning")
+  )
+)
+
+server <- function(input, output, session) {
+  observeEvent(input$test, {
+    show_bulma_notification(
+      #id = "test", 
+      options = list(
+        body = "This is the message",
+        color = "danger",
+        dismissInterval = 2000
+      )
+    )
+  })
+}
+
+shinyApp(ui, server)
+```
+
+### Modal
+The other JS component is the modal. There are 2 steps, like in vanilla Shiny:
+
+  - We first create the modal HTML
+  - We ask JS to show/hide it
+  
+Alternatively, bulma JS allows to create the modal only from JS, like for notification. The latter approach avoids to insert the modal HTML in the UI (like in vanilla Shiny). Since we already built notifications only from JS, we propose to develop the modal following the HTML + JS approach.
+  
+#### Modal HTML 
+The bulma modal HTML is available in bulma's core [here](https://bulma.io/documentation/components/modal/) but only the card template works with bulma JS. 
+
+1. After translating the most basic HTML template to R with `html_2_R`, we create `bulma_modal`.
+
+
+
