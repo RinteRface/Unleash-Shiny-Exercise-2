@@ -45,7 +45,7 @@ The API works as follows:
   
 In the following we'll design the R interface and JavaScript handler (which is no more than an event listener). `{charpente}` has a function that creates both pieces: `create_js_handler`. It sets boilerplate but you will sometimes need to adapt them to fit your needs.
 
-1. Run `create_js_hanlder("notification")` in the R console. Rename the newly created R script to `show_bulma_notification` and modify it according to the below code chunk. It has 3 parameters: `id` for the target (not mandatory), options is the configuration expecting a list (see JS [API](https://bulmajs.tomerbe.co.uk/docs/0.11/2-core-components/notification/#creating-a-notification)), session is the current session extracted with `shiny::getDefaultReactiveDomain`. Fill in the blanks! Note: `dropNulls` removes all NULL elements from a list so that they are not sent to JS.
+1. Run `create_js_handler("notification")` in the R console. Rename the newly created R script to `show_bulma_notification` and modify it according to the below code chunk. It has 3 parameters: `id` for the target (not mandatory), options is the configuration expecting a list (see JS [API](https://bulmajs.tomerbe.co.uk/docs/0.11/2-core-components/notification/#creating-a-notification)), session is the current session extracted with `shiny::getDefaultReactiveDomain`. Fill in the blanks! Note: `dropNulls` removes all NULL elements from a list so that they are not sent to JS.
 
 ```{r nulma-notif}
 show_bulma_notification <- function(id, options = NULL, session = shiny::getDefaultReactiveDomain()) {
