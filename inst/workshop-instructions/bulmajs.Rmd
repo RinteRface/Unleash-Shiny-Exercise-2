@@ -10,47 +10,44 @@ knitr::opts_chunk$set(echo = TRUE)
 library(htmltools)
 library(jsonlite)
 library(charpente)
-dropNulls <- function(x) {
-  x[!vapply(x, is.null, FUN.VALUE = logical(1))]
-}
 ```
 
 ## bulmajs
 As stated in the previous activity, bulma only contains CSS things! It means we need
-either to develop custom JS code to add interactivity or use any existing API. [bulma JS](https://bulmajs.tomerbe.co.uk/) is one of these!
+either to develop custom JS code to add interactivity or rely on any third party existing API. [bulma JS](https://bulmajs.tomerbe.co.uk/) is one of these!
 
 ### Add the dependency
-1. Using `{charpente}` create a bulma js dependency. We'll point to "@vizuaalog/bulmajs" since some bulmajs already exist and are not what we want.
+`bulma_page` and `add_bulma_deps` are already available for you in the `./R` folder. This functions were obtained after completing the first [activity](https://github.com/RinteRface/Unleash-Shiny-Exercise-1).
+
+1. Using `{charpente}`, create a bulma js dependency. We'll point to [@vizuaalog/bulmajs](https://bulmajs.tomerbe.co.uk/) since some bulmajs already exist and are not what we want. Run the following code in the R console.
 
 ```{r bulmajs-deps}
 create_dependency(..., options = charpente_options(local = FALSE))
 ```
 
-Notice how many files are added to the dependency. You may not need all of them. For instance, in the following, we'll only work with notifications and modals.
+Notice how many files are added to the dependency. In the following, we'll only work with notifications and modals so you may remove all the unnecessary files.
 
-2. Test the newly created dependency.
-
+2. Run `devtools::load_all()`. Modify the below code to test the newly created dependency. Hint: toggle the HTML inspector to check all appropriate dependencies are there!
 ```{r bulmajs-deps-test}
-ui <- fluidPage(
-  
-)
+ui <- bulma_page()
 
 server <- function(input, output, session) {}
 shinyApp(ui, server)
 ```
 
 ### Notification 
-Notifications are always useful to send user feedback. Bulma notifications are entirely built from JS (not need for any HTML code).
-The API works as follows:
-  - `Bulma(target).notification(config)` create the notification based on a JSON option list
-  - We show the notification with `show`
-  
-In the following we'll first design the R interface and later the Shiny handler.
+Notifications are always useful to send user feedback. Shiny has a notification system through `shiny::showNotification`. Like Shiny, Bulma [notifications](https://bulmajs.tomerbe.co.uk/docs/0.11/2-core-components/notification/) are entirely built from JS (no need for any HTML code).
 
-1. It is time to create the `show_bulma_notification` function. It has 3 parameters: `id` for the target (not mandatory), options is the configuration expecting a list (see JS API), session is the current session extracted with `shiny::getDefaultReactiveDomain`. Fill in the blanks! Note: `dropNulls` removes all NULL elements from a list so that they are not sent to JS.
+The API works as follows:
+  - `Bulma(target).notification(config)` creates the notification based on a JSON option list
+  - `show` toggles the newly instantiated notification
+  
+In the following we'll design the R interface and JavaScript handler (which is no more than an event listener). `{charpente}` has a function that creates both pieces: `create_js_handler`. It sets boilerplate but you will sometimes need to adapt them to fit your needs.
+
+1. Run `create_js_hanlder("notification")` in the R console. Rename the newly created R script to `show_bulma_notification` and modify it according to the below code chunk. It has 3 parameters: `id` for the target (not mandatory), options is the configuration expecting a list (see JS [API](https://bulmajs.tomerbe.co.uk/docs/0.11/2-core-components/notification/#creating-a-notification)), session is the current session extracted with `shiny::getDefaultReactiveDomain`. Fill in the blanks! Note: `dropNulls` removes all NULL elements from a list so that they are not sent to JS.
 
 ```{r nulma-notif}
-show_bulma_notification <- function(id = NULL, options = NULL, session = shiny::getDefaultReactiveDomain()) {
+show_bulma_notification <- function(id, options = NULL, session = shiny::getDefaultReactiveDomain()) {
   message <- dropNulls(
     list(
       ...,
@@ -61,24 +58,31 @@ show_bulma_notification <- function(id = NULL, options = NULL, session = shiny::
 }
 ```
 
-2. On the JS side we need to create the corresponding handler. Replace `...` by the appropriate content in the `inst/custom-js/bulma-notif.js` file.
+2. Looking at the [documentation](https://bulmajs.tomerbe.co.uk/docs/0.11/2-core-components/notification/), edit the `notification.js` file. Hint: below is a starting point!
 
-3. Edit the `add_bulmajs_deps` function to add an extra dependency containing the local reference to `bulma-notif.js`. Below is the corresponding dependency to copy.
-
-```{r}
-bulma_notif_handler <- htmltools::htmlDependency(
-  name = "bulma",
-  version = utils::packageVersion("Ex2"),
-  src = c(file = system.file("bulma-custom", package = "Ex2")),
-  script = "bulma-notif.js",
-)
+```js
+$(function() {
+  Shiny.addCustomMessageHandler('bulma-notif', function(message) {
+    if (message.id === undefined) {
+      Bulma('body'). ...;
+    } else {
+      Bulma('#' + message.id). ...;
+    }
+  });
+});
 ```
 
+3. Once done, we'll include our JS code in a dependency calling `create_custom_dependency("custom", script = "notification.js")` in the R console.
 
-4. We test our new system in a simple shiny app.
+We have now 3 individual dependencies. It does not make sense to add them one after each other
+to a tag. `add_dependencies` allow to select any dependency available in the `./R` folder, provided you follow the convention `<depName>_dependencies.R` when creating dependencies (which is the case if you use `{charpente}`). For instance `add_dependencies(div(), deps = c("bulma", "bulmajs"))` will add bulma (first) and bulmajs dependencies to a `div` tag. You may change the order as you want 
+
+4. Fill in the blanks and run the below app.
 
 ```{r bulma-notif-test}
-ui <- add_bulmajs_deps(
+devtools::load_all()
+ui <- add_dependencies(
+  deps = ...,
   bulma_page(
     bulma_button("test", "Click me!", color = "warning")
   )
@@ -99,6 +103,8 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 ```
+
+Congratulations! If you still have time, follow the next section.
 
 ### Modal
 The other JS component is the modal. There are 2 steps, like in vanilla Shiny:
@@ -157,7 +163,7 @@ bulma_modal <- function(
 #### Toggle the modal
 Similar to `shiny::showModal` and `shiny::removeModal`, we could create `show_modal` and `hide_modal`. Let's do it with only 1 function, `toggle_bulma_modal`!
 
-2. Create the `toggle_bulma_modal` function. It has only 2 parameters: `id` for the target (not mandatory), session is the current session extracted with `shiny::getDefaultReactiveDomain`. Fill in the blanks! 
+2. Run `create_js_hanlder("modal")` in the R console. Rename the newly created R script to `toggle_bulma_modal` and modify it according to the below code chunk. It has 2 parameters: `id` for the target (not mandatory), and session is the current session extracted with `shiny::getDefaultReactiveDomain`. Fill in the blanks! 
 
 ```{r toggle-bulma-modal}
 toggle_bulma_modal <- function(id, session = shiny::getDefaultReactiveDomain()) {
@@ -165,23 +171,34 @@ toggle_bulma_modal <- function(id, session = shiny::getDefaultReactiveDomain()) 
 }
 ```
 
-On the JS side we need to create the corresponding handler. Replace `...` by the appropriate content in the `inst/custom-js/bulma-modal.js` file. Note that a shown modal has the `is-active` class. 
+3. Replace `...` by the appropriate content in the `inst/custom-js/bulma-modal.js` file. Note that a shown modal has the `is-active` class. Hint: below is a starting point!
 
-3. Edit the `add_bulmajs_deps` function to add an extra dependency containing the local reference to `bulma-modal.js`. Below is the corresponding dependency to copy. Hint: `hasClass` may help you to check the current modal class!
+```js
+$(function() {
+  Shiny.addCustomMessageHandler('toggle-bulma-modal', function(message) {
+    var modalId = '#' + ...;
+    var modal = Bulma(...).modal();
+    // a shown modal has the `is-active` class!
+    if (...) {
+      ....close();
+    } else {
+      ....open();
+    }
+  });
+});
+```
 
-```{r}
-bulma_modal_handler <- htmltools::htmlDependency(
-  name = "bulma",
-  version = utils::packageVersion("Ex2"),
-  src = c(file = system.file("bulma-custom", package = "Ex2")),
-  script = "bulma-modal.js",
-)
-``` 
+3. Once done, we'll include our JS code in a dependency calling `create_custom_dependency("custom", script = "modal.js")` in the R console.
 
-4. Let's test our modal component.
+We have now 3 individual dependencies. It does not make sense to add them one after each other
+to a tag. `add_dependencies` allow to select any dependency available in the `./R` folder, provided you follow the convention `<depName>_dependencies.R` when creating dependencies (which is the case if you use `{charpente}`). For instance `add_dependencies(div(), deps = c("bulma", "bulmajs"))` will add bulma (first) and bulmajs dependencies to a `div` tag. You may change the order as you want 
+
+4. Fill in the blanks and run the below app.
 
 ```{r bulma-modal-test}
-ui <- add_bulmajs_deps(
+devtools::load_all()
+ui <- add_dependencies(
+  deps = ...,
   bulma_page(
     bulma_modal("mymodal", "A modal", "This is my first modal!"),
     bulma_button("test", "Click me!", color = "warning")
