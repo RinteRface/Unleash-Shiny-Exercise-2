@@ -85,14 +85,15 @@ devtools::load_all()
 ui <- add_dependencies(
   deps = ...,
   bulma_page(
-    bulma_button("test", "Click me!", color = "warning")
+    bulma_button("test", "Click me!", color = "warning"),
+    div(id = "target", style = "top: 0px; right: 0px; position: absolute;")
   )
 )
 
 server <- function(input, output, session) {
   observeEvent(input$test, {
     show_bulma_notification(
-      #id = "test", 
+      id = "target", 
       options = list(
         body = "This is the message",
         color = "danger",
