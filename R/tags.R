@@ -11,3 +11,17 @@ bulma_page <- function(..., title = NULL) {
     add_bulma_deps(tags$body(...))
   )
 }
+
+
+bulma_button <- function(inputId, label, color = NULL, icon = NULL) {
+
+  button_cl <- "button action-button"
+  if (!is.null(color)) button_cl <- paste0(button_cl, " is-", color)
+
+  tags$button(
+    id = inputId,
+    class = button_cl,
+    icon,
+    label
+  )
+}
