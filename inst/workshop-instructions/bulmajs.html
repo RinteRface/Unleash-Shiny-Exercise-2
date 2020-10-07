@@ -414,7 +414,7 @@ shinyApp(ui, server)</code></pre>
 <li>Looking at the <a href="https://bulmajs.tomerbe.co.uk/docs/0.11/2-core-components/notification/">documentation</a>, edit the <code>notification.js</code> file. Hint: below is a starting point!</li>
 </ol>
 <pre class="js"><code>$(function() {
-  Shiny.addCustomMessageHandler(&#39;bulma-notif&#39;, function(message) {
+  Shiny.addCustomMessageHandler(&#39;notification&#39;, function(message) {
     if (message.id === undefined) {
       Bulma(&#39;body&#39;). ...;
     } else {
@@ -501,30 +501,6 @@ shinyApp(ui, server)</code></pre>
   )
 ) {
   # your R code
-  tags$div(
-  id = id,
-  class = &quot;modal&quot;,
-  tags$div(class = &quot;modal-background&quot;),
-  tags$div(
-    class = &quot;modal-card&quot;,
-    tags$header(
-      class = &quot;modal-card-head&quot;,
-      tags$p(
-        class = &quot;modal-card-title&quot;,
-        title
-      ),
-      tags$button(
-        class = &quot;delete&quot;,
-        `aria-label` = &quot;close&quot;
-      )
-    ),
-    ...,
-    tags$footer(
-      class = &quot;modal-card-foot&quot;,
-      footer
-    )
-  )
-)
 }</code></pre>
 </div>
 <div id="toggle-the-modal" class="section level4">

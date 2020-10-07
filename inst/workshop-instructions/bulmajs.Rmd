@@ -68,7 +68,7 @@ show_bulma_notification <- function(id, options = NULL, session = shiny::getDefa
 
 ```js
 $(function() {
-  Shiny.addCustomMessageHandler('bulma-notif', function(message) {
+  Shiny.addCustomMessageHandler('notification', function(message) {
     if (message.id === undefined) {
       Bulma('body'). ...;
     } else {
@@ -164,30 +164,6 @@ bulma_modal <- function(
   )
 ) {
   # your R code
-  tags$div(
-  id = id,
-  class = "modal",
-  tags$div(class = "modal-background"),
-  tags$div(
-    class = "modal-card",
-    tags$header(
-      class = "modal-card-head",
-      tags$p(
-        class = "modal-card-title",
-        title
-      ),
-      tags$button(
-        class = "delete",
-        `aria-label` = "close"
-      )
-    ),
-    ...,
-    tags$footer(
-      class = "modal-card-foot",
-      footer
-    )
-  )
-)
 }
 ```
 
