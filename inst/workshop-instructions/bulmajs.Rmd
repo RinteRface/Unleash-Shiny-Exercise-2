@@ -122,9 +122,9 @@ The other JS component is the modal. There are 2 steps, like in vanilla Shiny:
 Alternatively, bulma JS allows to create the modal only from JS, like for notification. The latter approach avoids to insert the modal HTML in the UI (like in vanilla Shiny). Since we already built notifications only from JS, we propose to develop the modal following the HTML + JS approach.
   
 #### Modal HTML 
-The bulma modal HTML is available in bulma's core [here](https://bulma.io/documentation/components/modal/) but only the card template works with bulma JS. 
+The bulma modal HTML is available in bulma's core [here](https://bulma.io/documentation/components/modal/) but only the card template works with bulma JS. The bulma js API also provides some starting points in the [documentation](https://bulmajs.tomerbe.co.uk/docs/0.11/2-core-components/modal/).
 
-1. After translating the most basic HTML template to R with `html_2_R`, we create `bulma_modal`.
+1. After translating the most basic HTML template to R with `html_2_R`, create `bulma_modal` in the `./R` package folder.
 
 ```html
 <div id="modal-example-2" class="modal">
@@ -164,13 +164,37 @@ bulma_modal <- function(
   )
 ) {
   # your R code
+  tags$div(
+  id = id,
+  class = "modal",
+  tags$div(class = "modal-background"),
+  tags$div(
+    class = "modal-card",
+    tags$header(
+      class = "modal-card-head",
+      tags$p(
+        class = "modal-card-title",
+        title
+      ),
+      tags$button(
+        class = "delete",
+        `aria-label` = "close"
+      )
+    ),
+    ...,
+    tags$footer(
+      class = "modal-card-foot",
+      footer
+    )
+  )
+)
 }
 ```
 
 #### Toggle the modal
 Similar to `shiny::showModal` and `shiny::removeModal`, we could create `show_modal` and `hide_modal`. Let's do it with only 1 function, `toggle_bulma_modal`!
 
-2. Run `create_custom_hanlder("modal")` in the R console. Rename the newly created R script to `toggle_bulma_modal` and modify it according to the below code chunk. It has 2 parameters: `id` for the target (not mandatory), and session is the current session extracted with `shiny::getDefaultReactiveDomain`. Fill in the blanks! 
+2. Run `create_custom_handler("modal")` in the R console. Rename the newly created R script to `toggle_bulma_modal` and modify it according to the below code chunk. It has 2 parameters: `id` for the target (not mandatory), and session is the current session extracted with `shiny::getDefaultReactiveDomain`. Fill in the blanks! 
 
 ```{r toggle-bulma-modal, eval=FALSE}
 toggle_bulma_modal <- function(id, session = shiny::getDefaultReactiveDomain()) {
@@ -182,7 +206,7 @@ toggle_bulma_modal <- function(id, session = shiny::getDefaultReactiveDomain()) 
 
 ```js
 $(function() {
-  Shiny.addCustomMessageHandler('toggle-bulma-modal', function(message) {
+  Shiny.addCustomMessageHandler('modal', function(message) {
     // as a reminder, CSS selector $('#id') for id or $('.class') for class
     var modalId = '#' + ...;
     var modal = Bulma(...).modal();
