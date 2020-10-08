@@ -170,6 +170,8 @@ bulma_modal <- function(
 #### Toggle the modal
 Similar to `shiny::showModal` and `shiny::removeModal`, we could create `show_modal` and `hide_modal`. Let's do it with only 1 function, `toggle_bulma_modal`!
 
+In the following we'll design the R interface and JavaScript handler (which is no more than an event listener). `{charpente}` has a function that creates both pieces: `create_custom_handler`. It sets boilerplate but you will sometimes need to adapt them to fit your needs.
+
 2. Run `create_custom_handler("modal")` in the R console. Rename the newly created R script to `toggle_bulma_modal` and modify it according to the below code chunk. It has 2 parameters: `id` for the target (not mandatory), and session is the current session extracted with `shiny::getDefaultReactiveDomain`. Fill in the blanks! 
 
 ```{r toggle-bulma-modal, eval=FALSE}
